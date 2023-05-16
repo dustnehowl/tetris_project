@@ -49,8 +49,10 @@ shape = [
 
 class Tetromino:
     def __init__(self):
-        self.x = 4
-        self.y = 1
+        self.start_x = 4
+        self.start_y = 1
+        self.x = self.start_x
+        self.y = self.start_y
         self.rotation = 0
         self.piece_num = random.randint(0, 6)
         self.left = 2000
@@ -70,7 +72,7 @@ class Tetris:
         self.current_piece = Tetromino()
         self.next_piece = Tetromino()
         self.line = 0
-        self.colors = [(0, 255, 255), (0, 0, 255), (255, 165, 0), (255, 255, 0), (0, 255, 0), (102, 0, 153), (255, 0, 0), (255, 255, 255)]
+        self.colors = [(0, 255, 255), (0, 0, 255), (255, 165, 0), (255, 255, 0), (0, 255, 0), (152, 0, 203), (255, 0, 0), (255, 255, 255)]
         self.block_size = 40
         self.fps = 20
 
@@ -139,7 +141,6 @@ class Tetris:
         return True
 
     def freeze(self):
-        print(self.current_piece.rotation)
         self.board[self.current_piece.y][self.current_piece.x] = self.current_piece.piece_num + 8
         for (dy, dx) in shape[self.current_piece.piece_num][self.current_piece.rotation]:
             next_y = self.current_piece.y + dy
@@ -170,14 +171,24 @@ class Tetris:
             self.next_piece = Tetromino()
 
     def check_line(self):
+        cleared_lines = []
         for y in range(20):
-            _y = 20 - y - 1
             cnt = 0
             for x in range(10):
-                if self.board[_y][x] != blank:
+                if self.board[y][x] != blank:
                     cnt += 1
             if cnt == 10:
+                cleared_lines.append(y)
+        
+        if cleared_lines:
+            # print(f"{cleared_lines[0]}부터 {len(cleared_lines)}줄을 삭제해야 합니다.")
+            self.line += cleared_lines
+            self.clear_line(cleared_lines)
 
+    def clear_line(self, cleared_lines):
+        for y in cleared_lines:
+            del self.board[y]
+            self.board.insert(0, [blank for _ in range(10)])
 
     def left(self):
         if self.check('L'):
@@ -204,6 +215,7 @@ class Tetris:
     def main(self):
         running = True
         timer = 0
+        flag = True
         while(running):
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -221,13 +233,15 @@ class Tetris:
                         self.rotate()
                     elif event.key == pygame.K_q:
                         running = False
+                    elif event.key == pygame.K_p:
+                        flag = not flag
             self.update_board()
             self.draw_board()
             pygame.display.update()
             clock.tick(self.fps)
             
             timer += clock.get_time()
-            if timer > 1000:
+            if timer > 1000 and flag == False:
                 self.down()
                 timer = 0
 
