@@ -1,5 +1,6 @@
 import pygame
 import random
+import time
 
 blank = 7
 shape = [
@@ -46,13 +47,13 @@ shape = [
         [(-1, 0), (0, -1), (1, -1)]
     ]
 ]
+start_x = 4
+start_y = 1
 
 class Tetromino:
     def __init__(self):
-        self.start_x = 4
-        self.start_y = 1
-        self.x = self.start_x
-        self.y = self.start_y
+        self.x = start_x
+        self.y = start_y
         self.rotation = 0
         self.piece_num = random.randint(0, 6)
         self.left = 2000
@@ -68,6 +69,12 @@ class Tetromino:
 
 class Tetris:
     def __init__(self):
+        self.key_states = {
+            'left': False,
+            'right': False,
+            'down': False
+        }
+        self.running = True
         self.board = [[blank for i in range(10)] for j in range(20)]
         self.current_piece = Tetromino()
         self.next_piece = Tetromino()
@@ -146,6 +153,10 @@ class Tetris:
             next_y = self.current_piece.y + dy
             next_x = self.current_piece.x + dx
             self.board[next_y][next_x] = self.current_piece.piece_num + 8
+    
+    def check_end(self):
+        if self.current_piece.y == start_y or self.current_piece == start_x:
+            self.running = False
         
     def print_board(self):
         for i in range(20):
@@ -166,6 +177,7 @@ class Tetris:
             self.current_piece.y = min(19, self.current_piece.y)
         else:
             self.freeze()
+            self.check_end()
             self.check_line()
             self.current_piece = self.next_piece
             self.next_piece = Tetromino()
@@ -182,7 +194,7 @@ class Tetris:
         
         if cleared_lines:
             # print(f"{cleared_lines[0]}부터 {len(cleared_lines)}줄을 삭제해야 합니다.")
-            self.line += cleared_lines
+            self.line += len(cleared_lines)
             self.clear_line(cleared_lines)
 
     def clear_line(self, cleared_lines):
@@ -213,41 +225,55 @@ class Tetris:
                 pygame.draw.rect(screen, self.colors[self.board[i][j] % 8], (j*self.block_size + 1, i*self.block_size + 1, self.block_size-2, self.block_size-2))
 
     def main(self):
-        running = True
         timer = 0
-        flag = True
-        while(running):
+        flag = False
+        while self.running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    running = False
+                    self.running = False
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_LEFT:
-                        self.left()
+                        self.key_states['left'] = True
                     elif event.key == pygame.K_RIGHT:
-                        self.right()
+                        self.key_states['right'] = True
                     elif event.key == pygame.K_DOWN:
-                        self.down()
+                        self.key_states['down'] = True
                     elif event.key == pygame.K_SPACE:
                         self.drop()
                     elif event.key == pygame.K_UP:
                         self.rotate()
                     elif event.key == pygame.K_q:
-                        running = False
+                        self.running = False
                     elif event.key == pygame.K_p:
                         flag = not flag
+                elif event.type == pygame.KEYUP:
+                    if event.key == pygame.K_LEFT:
+                        self.key_states['left'] = False
+                    elif event.key == pygame.K_RIGHT:
+                        self.key_states['right'] = False
+                    elif event.key == pygame.K_DOWN:
+                        self.key_states['down'] = False
+
+            # 방향키 상태에 따라 함수 호출
+            if self.key_states['left']:
+                self.left()
+            elif self.key_states['right']:
+                self.right()
+            elif self.key_states['down']:
+                self.down()
+
             self.update_board()
             self.draw_board()
             pygame.display.update()
             clock.tick(self.fps)
-            
+
             timer += clock.get_time()
-            if timer > 1000 and flag == False:
+            if timer > 1000 and not flag:
                 self.down()
                 timer = 0
 
         print("Game over!")
-        print("Your score is", self.line)
-                        
+        print("Your score is", self.line)      
 
 if __name__ == "__main__":
     pygame.init()
