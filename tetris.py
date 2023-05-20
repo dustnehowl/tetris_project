@@ -286,9 +286,9 @@ class Tetris:
                 elif event.type == pygame.KEYUP:
                     if event.key == pygame.K_LEFT:
                         self.key_states['left'] = False
-                    elif event.key == pygame.K_RIGHT:
+                    if event.key == pygame.K_RIGHT:
                         self.key_states['right'] = False
-                    elif event.key == pygame.K_DOWN:
+                    if event.key == pygame.K_DOWN:
                         self.key_states['down'] = False
 
             # 방향키 상태에 따라 함수 호출
