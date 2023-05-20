@@ -271,24 +271,24 @@ class Tetris:
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_LEFT:
                         self.key_states['left'] = True
-                    elif event.key == pygame.K_RIGHT:
+                    if event.key == pygame.K_RIGHT:
                         self.key_states['right'] = True
-                    elif event.key == pygame.K_DOWN:
+                    if event.key == pygame.K_DOWN:
                         self.key_states['down'] = True
-                    elif event.key == pygame.K_SPACE:
+                    if event.key == pygame.K_SPACE:
                         self.drop()
-                    elif event.key == pygame.K_UP:
+                    if event.key == pygame.K_UP:
                         self.rotate()
-                    elif event.key == pygame.K_q:
+                    if event.key == pygame.K_q:
                         self.running = False
-                    elif event.key == pygame.K_p:
+                    if event.key == pygame.K_p:
                         flag = not flag
                 elif event.type == pygame.KEYUP:
                     if event.key == pygame.K_LEFT:
                         self.key_states['left'] = False
-                    elif event.key == pygame.K_RIGHT:
+                    if event.key == pygame.K_RIGHT:
                         self.key_states['right'] = False
-                    elif event.key == pygame.K_DOWN:
+                    if event.key == pygame.K_DOWN:
                         self.key_states['down'] = False
 
             # 방향키 상태에 따라 함수 호출
