@@ -17,6 +17,8 @@ class Tetromino:
 
 class Tetris:
     def __init__(self, num):
+        self.num = num
+        self.draw_start_x = (self.num-1) * 680
         self.shape = [
             [
                 [(0, -1), (0, 1), (0, 2)], # ----
@@ -76,7 +78,7 @@ class Tetris:
         self.colors = [(0, 255, 255), (0, 0, 255), (255, 165, 0), (255, 255, 0), (0, 255, 0), (152, 0, 203), (255, 0, 0), (255, 255, 255)]
         self.block_size = 40
         self.next_board = [[self.BLANK for i in range(5)] for j in range(5)]
-        self.next_board_start = (num * self.block_size * 10) + self.block_size
+        self.next_board_start = (self.block_size * 10) + self.block_size
         self.score_x = self.next_board_start
         self.score_y = self.block_size
         self.fps = 20
@@ -226,9 +228,9 @@ class Tetris:
 
     def draw_score(self, screen):
         # 이전 점수 텍스트를 지우기 위해 점수 영역을 검정색으로 채움
-        pygame.draw.rect(screen, (0, 0, 0), (self.score_x, self.score_y, 200, 50))
+        pygame.draw.rect(screen, (0, 0, 0), (self.draw_start_x + self.score_x, self.score_y, 200, 50))
         text = self.font.render("Score: " + str(self.line), True, (255, 255, 255))
-        screen.blit(text, (self.score_x, self.score_y))
+        screen.blit(text, (self.draw_start_x + self.score_x, self.score_y))
     
     def drop(self):
         while self.check('D'):
@@ -236,9 +238,10 @@ class Tetris:
         self.down()
     
     def draw_board(self, screen):
+        draw_start_y = self.num-1
         for i in range(20):
             for j in range(10):
-                pygame.draw.rect(screen, self.colors[self.board[i][j] % 8], (j*self.block_size + 1, i*self.block_size + 1, self.block_size-2, self.block_size-2))
+                pygame.draw.rect(screen, self.colors[self.board[i][j] % 8], (self.draw_start_x + j*self.block_size + 1, i*self.block_size + 1, self.block_size-2, self.block_size-2))
 
     def draw_next_board(self, screen):
         for i in range(5):
@@ -247,7 +250,7 @@ class Tetris:
                     screen, 
                     self.colors[self.next_board[i][j] % 8], 
                     (
-                        self.next_board_start + j*self.block_size + 1, 
+                        self.draw_start_x + self.next_board_start + j*self.block_size + 1, 
                         self.next_board_start + i*self.block_size + 1, 
                         self.block_size-2, 
                         self.block_size-2
@@ -311,7 +314,7 @@ class Tetris:
 
 if __name__ == "__main__":
     pygame.init()
-    size = (width, height) = (1200, 800)
+    size = (width, height) = (1000, 800)
     screen1 = pygame.display.set_mode(size)
     clock1 = pygame.time.Clock()
 
