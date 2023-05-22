@@ -2,64 +2,12 @@ import pygame
 import random
 import time
 
-blank = 7
-shape = [
-    [
-        [(0, -1), (0, 1), (0, 2)], # ----
-        [(-1, 0), (1, 0), (2, 0)],
-        [(0, -1), (0, 1), (0, 2)],
-        [(-1, 0), (1, 0), (2, 0)],
-    ],
-    [
-        [(0, -1), (-1, -1), (0, 1)],
-        [(-1, 0), (-1, 1), (1, 0)],
-        [(0, -1), (0, 1), (1, 1)],
-        [(1, 0), (1, -1), (-1, 0)]
-    ],
-    [
-        [(0, -1), (0, 1), (-1, 1)],
-        [(-1, 0), (1, 0), (1, 1)],
-        [(0, -1), (1, -1), (0, 1)],
-        [(-1,-1), (-1, 0), (1, 0)]
-    ],
-    [
-        [(0, 1), (1, 0), (1,1)],
-        [(0, 1), (1, 0), (1,1)],
-        [(0, 1), (1, 0), (1,1)],
-        [(0, 1), (1, 0), (1,1)]
-    ],
-    [
-        [(0, -1), (-1, 0), (-1, 1)],
-        [(-1, 0), (0, 1), (1, 1)],
-        [(0, 1), (1, 0), (1, -1)],
-        [(0, -1), (-1, -1), (1, 0)]
-    ],
-    [
-        [(0, -1), (0, 1), (-1, 0)],
-        [(-1, 0), (1, 0), (0, 1)],
-        [(0, 1), (1, 0), (0, -1)],
-        [(0, -1), (-1, 0), (1, 0)]
-    ],
-    [
-        [(-1, -1), (-1, 0), (0, 1)],
-        [(1, 0), (0, 1), (-1, 1)],
-        [(0, -1), (1, 0), (1, 1)],
-        [(-1, 0), (0, -1), (1, -1)]
-    ]
-]
-start_x = 4
-start_y = 1
-
 class Tetromino:
     def __init__(self):
-        self.x = start_x
-        self.y = start_y
+        self.x = 4
+        self.y = 1
         self.rotation = 0
         self.piece_num = random.randint(0, 6)
-        self.left = 2000
-        self.right = -2000
-        self.up = 2000
-        self.down = -2000
 
     def rotate(self):
         self.rotation = (self.rotation + 1) % 4
@@ -69,40 +17,85 @@ class Tetromino:
 
 class Tetris:
     def __init__(self, num):
+        self.shape = [
+            [
+                [(0, -1), (0, 1), (0, 2)], # ----
+                [(-1, 0), (1, 0), (2, 0)],
+                [(0, -1), (0, 1), (0, 2)],
+                [(-1, 0), (1, 0), (2, 0)],
+            ],
+            [
+                [(0, -1), (-1, -1), (0, 1)],
+                [(-1, 0), (-1, 1), (1, 0)],
+                [(0, -1), (0, 1), (1, 1)],
+                [(1, 0), (1, -1), (-1, 0)]
+            ],
+            [
+                [(0, -1), (0, 1), (-1, 1)],
+                [(-1, 0), (1, 0), (1, 1)],
+                [(0, -1), (1, -1), (0, 1)],
+                [(-1,-1), (-1, 0), (1, 0)]
+            ],
+            [
+                [(0, 1), (1, 0), (1,1)],
+                [(0, 1), (1, 0), (1,1)],
+                [(0, 1), (1, 0), (1,1)],
+                [(0, 1), (1, 0), (1,1)]
+            ],
+            [
+                [(0, -1), (-1, 0), (-1, 1)],
+                [(-1, 0), (0, 1), (1, 1)],
+                [(0, 1), (1, 0), (1, -1)],
+                [(0, -1), (-1, -1), (1, 0)]
+            ],
+            [
+                [(0, -1), (0, 1), (-1, 0)],
+                [(-1, 0), (1, 0), (0, 1)],
+                [(0, 1), (1, 0), (0, -1)],
+                [(0, -1), (-1, 0), (1, 0)]
+            ],
+            [
+                [(-1, -1), (-1, 0), (0, 1)],
+                [(1, 0), (0, 1), (-1, 1)],
+                [(0, -1), (1, 0), (1, 1)],
+                [(-1, 0), (0, -1), (1, -1)]
+            ]
+        ]
         self.font = pygame.font.Font(None, 36)
         self.key_states = {
             'left': False,
             'right': False,
             'down': False
         }
+        self.BLANK = 7
         self.running = True
-        self.board = [[blank for i in range(10)] for j in range(20)]
+        self.board = [[self.BLANK for i in range(10)] for j in range(20)]
         self.current_piece = Tetromino()
         self.next_piece = Tetromino()
         self.line = 0
         self.colors = [(0, 255, 255), (0, 0, 255), (255, 165, 0), (255, 255, 0), (0, 255, 0), (152, 0, 203), (255, 0, 0), (255, 255, 255)]
         self.block_size = 40
-        self.next_board = [[blank for i in range(5)] for j in range(5)]
+        self.next_board = [[self.BLANK for i in range(5)] for j in range(5)]
         self.next_board_start = (num * self.block_size * 10) + self.block_size
         self.score_x = self.next_board_start
         self.score_y = self.block_size
         self.fps = 20
-
+        
     def erase_cur(self):
         # 현재 칸 지우기
-        self.board[self.current_piece.y][self.current_piece.x] = blank
-        for (dy, dx) in shape[self.current_piece.piece_num][self.current_piece.rotation]:
+        self.board[self.current_piece.y][self.current_piece.x] = self.BLANK
+        for (dy, dx) in self.shape[self.current_piece.piece_num][self.current_piece.rotation]:
             next_y = self.current_piece.y + dy
             next_x = self.current_piece.x + dx
-            self.board[next_y][next_x] = blank
+            self.board[next_y][next_x] = self.BLANK
     
     def erase_next_board(self):
-        self.next_board = [[blank for i in range(5)] for j in range(5)]
+        self.next_board = [[self.BLANK for i in range(5)] for j in range(5)]
 
     def update_board(self):
         # 다시 그리기
         self.board[self.current_piece.y][self.current_piece.x] = self.current_piece.piece_num
-        for (dy, dx) in shape[self.current_piece.piece_num][self.current_piece.rotation]:
+        for (dy, dx) in self.shape[self.current_piece.piece_num][self.current_piece.rotation]:
             next_y = self.current_piece.y + dy
             next_x = self.current_piece.x + dx
             self.board[next_y][next_x] = self.current_piece.piece_num
@@ -111,23 +104,23 @@ class Tetris:
         self.erase_next_board()
         center = 2
         self.next_board[center][center] = self.next_piece.piece_num
-        for (dy, dx) in shape[self.next_piece.piece_num][self.next_piece.rotation]:
+        for (dy, dx) in self.shape[self.next_piece.piece_num][self.next_piece.rotation]:
             next_y = center + dy
             next_x = center + dx
             self.next_board[next_y][next_x] = self.next_piece.piece_num
 
     def check(self, command):
         if command == 'U':
-            for (dy,dx) in shape[self.current_piece.piece_num][(self.current_piece.rotation + 1) % 4]:
+            for (dy,dx) in self.shape[self.current_piece.piece_num][(self.current_piece.rotation + 1) % 4]:
                 next_y = self.current_piece.y + dy
                 next_x = self.current_piece.x + dx
                 if next_x < 0 or next_x > 9 or next_y < 0 or next_y >19:
                     return False
-                elif self.board[next_y][next_x] != blank and self.board[next_y][next_x] != self.current_piece.piece_num:
+                elif self.board[next_y][next_x] != self.BLANK and self.board[next_y][next_x] != self.current_piece.piece_num:
                     return False
                 else: continue
             return True
-        for (dy, dx) in shape[self.current_piece.piece_num][self.current_piece.rotation]:
+        for (dy, dx) in self.shape[self.current_piece.piece_num][self.current_piece.rotation]:
             cur_y = self.current_piece.y
             cur_x = self.current_piece.x
             next_y = cur_y + dy
@@ -135,30 +128,30 @@ class Tetris:
             if command == 'L':
                 if next_x <= 0 or cur_x <= 0:
                     return False
-                elif self.board[cur_y][cur_x-1] != blank \
+                elif self.board[cur_y][cur_x-1] != self.BLANK \
                     and self.board[cur_y][cur_x-1] != self.current_piece.piece_num:
                     return False
-                elif self.board[next_y][next_x-1] != blank \
+                elif self.board[next_y][next_x-1] != self.BLANK \
                     and self.board[next_y][next_x-1] != self.current_piece.piece_num:
                     return False
                 else: continue
             elif command == 'R':
                 if next_x >= 9 or cur_x >= 9:
                     return False
-                elif self.board[cur_y][cur_x+1] != blank \
+                elif self.board[cur_y][cur_x+1] != self.BLANK \
                     and self.board[cur_y][cur_x+1] != self.current_piece.piece_num:
                     return False
-                elif self.board[next_y][next_x+1] != blank \
+                elif self.board[next_y][next_x+1] != self.BLANK \
                     and self.board[next_y][next_x+1] != self.current_piece.piece_num:
                     return False
                 else: continue
             elif command == 'D':
                 if next_y >= 19 or cur_y >= 19:
                     return False
-                elif self.board[cur_y+1][cur_x] != blank \
+                elif self.board[cur_y+1][cur_x] != self.BLANK \
                     and self.board[cur_y+1][cur_x] != self.current_piece.piece_num:
                     return False
-                elif self.board[next_y+1][next_x] != blank \
+                elif self.board[next_y+1][next_x] != self.BLANK \
                     and self.board[next_y+1][next_x] != self.current_piece.piece_num:
                     return False
                 else: continue
@@ -166,13 +159,13 @@ class Tetris:
 
     def freeze(self):
         self.board[self.current_piece.y][self.current_piece.x] = self.current_piece.piece_num + 8
-        for (dy, dx) in shape[self.current_piece.piece_num][self.current_piece.rotation]:
+        for (dy, dx) in self.shape[self.current_piece.piece_num][self.current_piece.rotation]:
             next_y = self.current_piece.y + dy
             next_x = self.current_piece.x + dx
             self.board[next_y][next_x] = self.current_piece.piece_num + 8
     
     def check_end(self):
-        if self.current_piece.y == start_y or self.current_piece == start_x:
+        if self.current_piece.y == 1 or self.current_piece == 4:
             self.running = False
         
     def print_board(self):
@@ -204,7 +197,7 @@ class Tetris:
         for y in range(20):
             cnt = 0
             for x in range(10):
-                if self.board[y][x] != blank:
+                if self.board[y][x] != self.BLANK:
                     cnt += 1
             if cnt == 10:
                 cleared_lines.append(y)
@@ -217,7 +210,7 @@ class Tetris:
     def clear_line(self, cleared_lines):
         for y in cleared_lines:
             del self.board[y]
-            self.board.insert(0, [blank for _ in range(10)])
+            self.board.insert(0, [self.BLANK for _ in range(10)])
 
     def left(self):
         if self.check('L'):
@@ -231,7 +224,7 @@ class Tetris:
             self.current_piece.x += 1
             self.current_piece.x = min(9, self.current_piece.x)
 
-    def draw_score(self):
+    def draw_score(self, screen):
         # 이전 점수 텍스트를 지우기 위해 점수 영역을 검정색으로 채움
         pygame.draw.rect(screen, (0, 0, 0), (self.score_x, self.score_y, 200, 50))
         text = self.font.render("Score: " + str(self.line), True, (255, 255, 255))
@@ -242,12 +235,12 @@ class Tetris:
             self.down()
         self.down()
     
-    def draw_board(self):
+    def draw_board(self, screen):
         for i in range(20):
             for j in range(10):
                 pygame.draw.rect(screen, self.colors[self.board[i][j] % 8], (j*self.block_size + 1, i*self.block_size + 1, self.block_size-2, self.block_size-2))
 
-    def draw_next_board(self):
+    def draw_next_board(self, screen):
         for i in range(5):
             for j in range(5):
                 pygame.draw.rect(
@@ -261,7 +254,7 @@ class Tetris:
                     )
                 )
 
-    def main(self):
+    def main(self, screen, clock):
         timer = 0
         flag = False
         while self.running:
@@ -301,10 +294,10 @@ class Tetris:
 
             self.update_board()
             self.update_next_board()
-            self.draw_board()
-            self.draw_next_board()
+            self.draw_board(screen=screen)
+            self.draw_next_board(screen=screen)
             pygame.display.flip()
-            self.draw_score()
+            self.draw_score(screen=screen)
             # pygame.display.update()
             clock.tick(self.fps)
 
@@ -314,14 +307,14 @@ class Tetris:
                 timer = 0
 
         print("Game over!")
-        print("Your score is", self.line)      
+        print("Your score is", self.line)
 
 if __name__ == "__main__":
     pygame.init()
     size = (width, height) = (1200, 800)
-    screen = pygame.display.set_mode(size)
-    clock = pygame.time.Clock()
+    screen1 = pygame.display.set_mode(size)
+    clock1 = pygame.time.Clock()
 
     game = Tetris(1)
-    game.main()
+    game.main(screen=screen1, clock=clock1)
     pygame.quit()
