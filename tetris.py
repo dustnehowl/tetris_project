@@ -3,11 +3,11 @@ import random
 import time
 
 class Tetromino:
-    def __init__(self):
+    def __init__(self, piece_num=random.randint(0,6)):
         self.x = 4
         self.y = 1
         self.rotation = 0
-        self.piece_num = random.randint(0, 6)
+        self.piece_num = piece_num
 
     def rotate(self):
         self.rotation = (self.rotation + 1) % 4
@@ -72,8 +72,10 @@ class Tetris:
         self.BLANK = 7
         self.running = True
         self.board = [[self.BLANK for i in range(10)] for j in range(20)]
-        self.current_piece = Tetromino()
-        self.next_piece = Tetromino()
+        self.bag = [tmp for tmp in range(7)]
+        random.shuffle(self.bag)
+        self.current_piece = Tetromino(self.bag.pop(0))
+        self.next_piece = Tetromino(self.bag.pop(0))
         self.line = 0
         self.colors = [(0, 255, 255), (0, 0, 255), (255, 165, 0), (255, 255, 0), (0, 255, 0), (152, 0, 203), (255, 0, 0), (255, 255, 255)]
         self.block_size = 40
@@ -192,7 +194,10 @@ class Tetris:
             self.check_end()
             self.check_line()
             self.current_piece = self.next_piece
-            self.next_piece = Tetromino()
+            self.next_piece = Tetromino(self.bag.pop(0))
+            if len(self.bag) == 0:
+                self.bag = [tmp for tmp in range(7)]
+                random.shuffle(self.bag)
 
     def check_line(self):
         cleared_lines = []
