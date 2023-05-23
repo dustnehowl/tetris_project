@@ -1,5 +1,6 @@
 from tetris import Tetris
 import pygame
+import random
 
 
 if __name__ == "__main__":
@@ -7,6 +8,7 @@ if __name__ == "__main__":
     size = (width, height) = (1360, 800)
     screen1 = pygame.display.set_mode(size)
     clock1 = pygame.time.Clock()
+    ai_clock = pygame.time.Clock()
     running = True
 
     key_states = {
@@ -19,6 +21,7 @@ if __name__ == "__main__":
     ai_game = Tetris(2)
 
     timer = 0
+    ai_timer = 0
     flag = False
     while running:
         for event in pygame.event.get():
@@ -63,18 +66,26 @@ if __name__ == "__main__":
         clock1.tick(game.fps)
         running = game.running
 
+        timer += clock1.get_time()
+        if timer > 1000 and not flag:
+            game.down()
+            timer = 0
+
         ai_game.update_board()
         ai_game.update_next_board()
         ai_game.draw_board(screen=screen1)
         ai_game.draw_next_board(screen=screen1)
         ai_game.draw_score(screen=screen1)
+        ai_clock.tick(ai_game.fps)
         ai_running = ai_game.running
-        pygame.display.flip()
 
-        timer += clock1.get_time()
-        if timer > 1000 and not flag:
-            game.down()
-            timer = 0
+        ai_timer += ai_clock.get_time()
+        if ai_timer > 100 and not flag:
+            random_action = random.randint(0,39)
+            ai_game.do_action(random_action)
+            ai_timer = 0
+
+        pygame.display.flip()
 
         if running == False:
             print("You Lose")
