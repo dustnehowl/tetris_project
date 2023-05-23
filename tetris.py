@@ -236,6 +236,32 @@ class Tetris:
         while self.check('D'):
             self.down()
         self.down()
+
+    def do_action(self, action):
+        action_x = action % 10
+        action_rotation = int(action / 10)
+        
+        # 돌리기
+        while action_rotation >= 0:
+            self.rotate()
+            action_rotation-=1
+        
+        while self.current_piece.x > action_x:
+            cur_x = self.current_piece.x
+            self.left()
+            if self.current_piece.x == cur_x:
+                return False
+        
+        while self.current_piece.x < action_x:
+            cur_x = self.current_piece.x
+            self.right()
+            if self.current_piece.x == cur_x:
+                return False
+        
+        self.drop()
+        return True
+
+        print(action_rotation)
     
     def draw_board(self, screen):
         draw_start_y = self.num-1
