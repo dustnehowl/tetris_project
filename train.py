@@ -82,17 +82,17 @@ if __name__ == "__main__":
         ai_timer += ai_clock.get_time()
         if ai_timer > 100 and not flag:
             random_action = random.randint(0,39)
-            ai_game.do_action(random_action)
+            ai_game.step(random_action)
             ai_timer = 0
 
         pygame.display.flip()
 
         if running == False:
-            print("You Lose")
+            # print("You Lose")
             game = Tetris(1)
             running = True
         if ai_running == False:
-            print("You win")
+            # print("You win")
             ai_game = Tetris(2)
             ai_running = True
 

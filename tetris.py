@@ -171,6 +171,8 @@ class Tetris:
     def check_end(self):
         if self.current_piece.y == 1 or self.current_piece == 4:
             self.running = False
+            return True
+        return False
         
     def print_board(self):
         for i in range(20):
@@ -185,19 +187,23 @@ class Tetris:
             self.current_piece.rotate()
 
     def down(self):
+        done = False
+        reward = 0
         if self.check('D'):
             self.erase_cur()
             self.current_piece.y += 1
             self.current_piece.y = min(19, self.current_piece.y)
         else:
             self.freeze()
-            self.check_end()
-            self.check_line()
+            done = self.check_end()
+            reward = self.check_line()
             self.current_piece = self.next_piece
             self.next_piece = Tetromino(self.bag.pop(0))
             if len(self.bag) == 0:
                 self.bag = [tmp for tmp in range(7)]
                 random.shuffle(self.bag)
+        
+        return reward, done
 
     def check_line(self):
         cleared_lines = []
@@ -213,6 +219,8 @@ class Tetris:
             # print(f"{cleared_lines[0]}부터 {len(cleared_lines)}줄을 삭제해야 합니다.")
             self.line += len(cleared_lines)
             self.clear_line(cleared_lines)
+
+        return len(cleared_lines)
 
     def clear_line(self, cleared_lines):
         for y in cleared_lines:
@@ -240,11 +248,16 @@ class Tetris:
     def drop(self):
         while self.check('D'):
             self.down()
-        self.down()
+        reward, done = self.down()
+        if done == False:
+            reward = 1
+        return reward, done
 
-    def do_action(self, action):
+    def step(self, action):
         action_x = action % 10
         action_rotation = int(action / 10)
+        reward = 1
+        done = False
         
         # 돌리기
         while action_rotation >= 0:
@@ -255,18 +268,21 @@ class Tetris:
             cur_x = self.current_piece.x
             self.left()
             if self.current_piece.x == cur_x:
-                return False
+                reward = -1
+                print(reward, done)
+                return reward, done
         
         while self.current_piece.x < action_x:
             cur_x = self.current_piece.x
             self.right()
             if self.current_piece.x == cur_x:
-                return False
+                reward = -1
+                print(reward, done)
+                return reward, done
         
-        self.drop()
-        return True
-
-        print(action_rotation)
+        reward, done = self.drop()
+        print(reward, done)
+        return reward, done
     
     def draw_board(self, screen):
         draw_start_y = self.num-1
