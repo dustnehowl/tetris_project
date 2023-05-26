@@ -169,10 +169,16 @@ class Tetris:
             self.board[next_y][next_x] = self.current_piece.piece_num + 8
     
     def check_end(self):
-        if self.current_piece.y == 1 or self.current_piece == 4:
-            self.running = False
-            return True
-        return False
+        done = False
+        if self.board[self.current_piece.y][self.current_piece.x] != self.BLANK:
+            done = True
+        for (dy, dx) in self.shape[self.current_piece.piece_num][self.current_piece.rotation]:
+            next_y = self.current_piece.y + dy
+            next_x = self.current_piece.x + dx
+            if self.board[next_y][next_x] != self.BLANK:
+                done = True
+        self.running = not done
+        return done
         
     def print_board(self):
         for i in range(20):
@@ -195,9 +201,9 @@ class Tetris:
             self.current_piece.y = min(19, self.current_piece.y)
         else:
             self.freeze()
-            done = self.check_end()
             reward = self.check_line()
             self.current_piece = self.next_piece
+            done = self.check_end()
             self.next_piece = Tetromino(self.bag.pop(0))
             if len(self.bag) == 0:
                 self.bag = [tmp for tmp in range(7)]

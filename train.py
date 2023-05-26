@@ -31,7 +31,7 @@ if __name__ == "__main__":
         done = False
         total_reward = 0
 
-        while not done:
+        while not done and ai_game.running:
 
             ai_game.update_board()
             ai_game.update_next_board()
@@ -47,7 +47,9 @@ if __name__ == "__main__":
                 state = ai_game.get_state()
                 state = np.expand_dims(state, axis=2)
                 action = deepQNetwork.choose_action(state)
-                reward, done = ai_game.step(action)
+                reward, _ = ai_game.step(action)
+                done = not ai_game.running
+                print(reward, action)
                 total_reward += reward
                 next_state = ai_game.get_state()
                 next_state = np.expand_dims(next_state, axis=2)
@@ -61,6 +63,7 @@ if __name__ == "__main__":
             deepQNetwork.update_target_model()
 
         print(f"Episode: {epoch}, Total Reward: {total_reward}")
+        epoch += 1
 
 
 

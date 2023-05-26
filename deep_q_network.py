@@ -45,8 +45,8 @@ class DeepQNetwork:
         batch = random.sample(self.memory, self.hyperparameters.BATCH_SIZE)
         states, actions, rewards, next_states, dones = zip(*batch)
 
-        states = np.reshape(states, (32, 20, 10, 1))
-        next_states = np.reshape(next_states, (32, 20, 10, 1))
+        states = np.reshape(states, (self.hyperparameters.BATCH_SIZE, 20, 10, 1))
+        next_states = np.reshape(next_states, (self.hyperparameters.BATCH_SIZE, 20, 10, 1))
 
         targets = self.model.predict(states)
         target_next = self.target_model.predict(next_states)
