@@ -252,6 +252,16 @@ class Tetris:
         if done == False:
             reward = 1
         return reward, done
+    
+    def get_state(self):
+        state = [[0 for _ in range(10)] for _ in range(20)]
+        for i in range(20):
+            for j in range(10):
+                if self.board[i][j] == self.BLANK:
+                    state[i][j] = 0
+                else: state[i][j] = 1
+        
+        return state
 
     def step(self, action):
         action_x = action % 10
@@ -269,7 +279,7 @@ class Tetris:
             self.left()
             if self.current_piece.x == cur_x:
                 reward = -1
-                print(reward, done)
+                # print(reward, done)
                 return reward, done
         
         while self.current_piece.x < action_x:
@@ -277,11 +287,11 @@ class Tetris:
             self.right()
             if self.current_piece.x == cur_x:
                 reward = -1
-                print(reward, done)
+                # print(reward, done)
                 return reward, done
         
         reward, done = self.drop()
-        print(reward, done)
+        # print(reward, done)
         return reward, done
     
     def draw_board(self, screen):

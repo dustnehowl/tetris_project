@@ -8,3 +8,4 @@ class HYPERPARAMETERS:
         self.EPSILON_MIN = 0.01 
         self.LEARNING_RATE = 0.001
         self.TARGET_UPDATE_INTERVAL = 1000 
+        self.NUM_EPISODES = 5000

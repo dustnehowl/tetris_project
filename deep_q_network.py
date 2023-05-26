@@ -25,6 +25,7 @@ class DeepQNetwork:
             tf.keras.layers.Dense(self.action_size, activation='softmax')
         ])
         model.compile(loss='mse', optimizer=tf.keras.optimizers.Adam(learning_rate=self.hyperparameters.LEARNING_RATE))
+        model.summary()
         return model
     
     def update_target_model(self):
@@ -38,6 +39,27 @@ class DeepQNetwork:
             return np.random.randint(self.action_size)
         return np.argmax(self.model.predict(np.expand_dims(state, axis=0)))
     
+    def replay(self):
+        if len(self.memory) < self.hyperparameters.BATCH_SIZE:
+            return
+        batch = random.sample(self.memory, self.hyperparameters.BATCH_SIZE)
+        states, actions, rewards, next_states, dones = zip(*batch)
+
+        states = np.reshape(states, (32, 20, 10, 1))
+        next_states = np.reshape(next_states, (32, 20, 10, 1))
+
+        targets = self.model.predict(states)
+        target_next = self.target_model.predict(next_states)
+        
+        # Calculate target Q values
+        dones = np.array(dones, dtype=np.float32)
+        targets[range(self.hyperparameters.BATCH_SIZE), actions] = rewards + self.hyperparameters.GAMMA * np.max(target_next, axis=1) * (1 - dones)
+
+        self.model.fit(states, targets, epochs=1, verbose=0)
+
+        if self.epsilon > self.hyperparameters.EPSILON_MIN:
+            self.epsilon *= self.hyperparameters.EPSILON_DECAY
+    
 if __name__ == "__main__":
     # model test
     board = np.array([[x for x in range(10)] for _ in range(20)])
@@ -45,7 +67,6 @@ if __name__ == "__main__":
     state_size = board.shape
     action_size = 40
 
-    print(state_size)
-    deepQNetwork = DeepQNetwork(state_size=state_size, action_size=action_size)
-    action = deepQNetwork.choose_action(board)
+    model = DeepQNetwork(state_size=state_size, action_size=action_size)
+    action = model.choose_action(board)
     print(action)
