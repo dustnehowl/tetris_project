@@ -7,6 +7,7 @@ from deep_q_network import DeepQNetwork
 
 
 if __name__ == "__main__":
+    base_url = "./models/230527_4/"
     pygame.init()
     size = (width, height) = (1360 / 2, 800)
     screen1 = pygame.display.set_mode(size)
@@ -14,6 +15,8 @@ if __name__ == "__main__":
     ai_clock = pygame.time.Clock()
     ai_running = True
     ai_game = Tetris(1)
+    total_rewards = []
+    means = []
 
     ai_timer = 0
     flag = False
@@ -41,15 +44,15 @@ if __name__ == "__main__":
             ai_clock.tick(ai_game.fps)
             ai_timer += ai_clock.get_time()
 
-            if ai_timer > 100 and not flag:
+            if ai_timer > 1000:
                 ai_timer = 0
-
+                ai_game.down()
+            else:
                 state = ai_game.get_state()
                 state = np.expand_dims(state, axis=2)
                 action = deepQNetwork.choose_action(state)
                 reward, _ = ai_game.step(action)
                 done = not ai_game.running
-                print(reward, action)
                 total_reward += reward
                 next_state = ai_game.get_state()
                 next_state = np.expand_dims(next_state, axis=2)
@@ -58,17 +61,25 @@ if __name__ == "__main__":
                 deepQNetwork.replay()
 
             pygame.display.flip()
+        
+        total_rewards.append(total_reward)
 
         if epoch % params.TARGET_UPDATE_INTERVAL == 0:
             deepQNetwork.update_target_model()
 
+        if epoch % 100 == 0:
+            mean = np.mean(total_rewards)
+            total_rewards = []
+            means.append(mean)
+            url = base_url + "epochs" + str(epoch)
+            deepQNetwork.save_model(url)
+
         print(f"Episode: {epoch}, Total Reward: {total_reward}")
         epoch += 1
-
-
-
-        
-        
-        
+    
+    cnt = 100
+    for mean in means:
+        print(cnt, " : ", mean)
+        cnt += 100
 
     pygame.quit()

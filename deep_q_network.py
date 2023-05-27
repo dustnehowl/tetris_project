@@ -15,6 +15,10 @@ class DeepQNetwork:
         self.model = self.build_model()
         self.target_model = self.build_model()
         self.update_target_model()
+    
+    def save_model(self, url):
+        self.model.save_weights(url)
+        print("Save Done!")
 
     def build_model(self):
         model = tf.keras.Sequential([

@@ -69,6 +69,13 @@ class Tetris:
             'right': False,
             'down': False
         }
+        self.reward_point = {
+            0: 1,
+            1: 40,
+            2: 100,
+            3: 300,
+            4: 1200
+        }
         self.BLANK = 7
         self.running = True
         self.board = [[self.BLANK for i in range(10)] for j in range(20)]
@@ -201,7 +208,7 @@ class Tetris:
             self.current_piece.y = min(19, self.current_piece.y)
         else:
             self.freeze()
-            reward = self.check_line()
+            reward = self.reward_point[self.check_line()]
             self.current_piece = self.next_piece
             done = self.check_end()
             self.next_piece = Tetromino(self.bag.pop(0))
@@ -209,6 +216,8 @@ class Tetris:
                 self.bag = [tmp for tmp in range(7)]
                 random.shuffle(self.bag)
         
+        if done == True:
+            reward = -5
         return reward, done
 
     def check_line(self):
@@ -255,8 +264,6 @@ class Tetris:
         while self.check('D'):
             self.down()
         reward, done = self.down()
-        if done == False:
-            reward = 1
         return reward, done
     
     def get_state(self):
@@ -284,7 +291,7 @@ class Tetris:
             cur_x = self.current_piece.x
             self.left()
             if self.current_piece.x == cur_x:
-                reward = -1
+                reward = -5
                 # print(reward, done)
                 return reward, done
         
@@ -292,7 +299,7 @@ class Tetris:
             cur_x = self.current_piece.x
             self.right()
             if self.current_piece.x == cur_x:
-                reward = -1
+                reward = -5
                 # print(reward, done)
                 return reward, done
         
